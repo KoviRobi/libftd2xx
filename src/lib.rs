@@ -322,15 +322,24 @@ pub fn list_devices() -> Result<Vec<DeviceInfo>, FtStatus> {
         Err(status.into())
     } else {
         while let Some(info_node) = list_info_vec.pop() {
-            let (vid, pid) = vid_pid_from_id(info_node.ID);
+            let port_open = info_node.Flags & 0x1 == 0x1;
+            let (serial_number, description) = if port_open {
+                ("".to_string(), "".to_string())
+            } else {
+                (
+                    slice_into_string(info_node.SerialNumber.as_ref()),
+                    slice_into_string(info_node.Description.as_ref()),
+                )
+            };
+            let (vendor_id, product_id) = vid_pid_from_id(info_node.ID);
             devices.push(DeviceInfo {
-                port_open: info_node.Flags & 0x1 == 0x1,
+                port_open,
                 speed: Some((info_node.Flags & 0x2).into()),
                 device_type: info_node.Type.into(),
-                product_id: pid,
-                vendor_id: vid,
-                serial_number: slice_into_string(info_node.SerialNumber.as_ref()),
-                description: slice_into_string(info_node.Description.as_ref()),
+                product_id,
+                vendor_id,
+                serial_number,
+                description,
             });
         }
         devices.sort_unstable();
