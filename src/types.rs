@@ -305,7 +305,10 @@ impl From<u32> for DeviceType {
             DEVICE_4222H_1_2 => DeviceType::FT4222H_1_2,
             DEVICE_4222H_3 => DeviceType::FT4222H_3,
             DEVICE_4222_PROG => DeviceType::FT4222_PROG,
-            _ => panic!("unknown device: {value}"),
+            _ => {
+                println!("unknown device: {value}");
+                DeviceType::Unknown
+            }
         }
     }
 }
